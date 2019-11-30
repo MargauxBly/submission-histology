@@ -128,8 +128,11 @@ $(document).ready(function () {
 <p>Please use the <code>submission_script_histology.Rmd</code> contained in the <code>starting_kit</code> folder as a template to write, run and save your code.</p>
 <div id="prediction-of-the-patient-histology" class="section level2">
 <h2>Prediction of the patient histology</h2>
-<p>On teste d’abord des régressions logistiques avec chacun des gênes. Puis on choisit alors les 10 gênes qui ont les p-valeurs les plus faibles, pour les tester dans notre modèle. On applique ensuite la méthode du Backward à l’aide la fonction stepAIC du pachage MASS, et on élimine petit à petit les variables à l’AIC le plus élevé.</p>
-<pre class="r"><code>### DO NOT CHANGE THIS PART
+
+<p>On teste d'abord des régressions logistiques avec  chacun des gênes. Puis on choisit alors les 10 gênes qui ont les p-valeurs les plus faibles, pour les tester dans notre modèle. On applique ensuite la méthode du Backward sur nos 10 gênes à l'aide la fonction stepAIC du package MASS, et on élimine petit à petit les variables à l'AIC le plus élevé.</p>
+
+<p>la matrice "res" renvoit les p valeurs des gênes lorsque ceux-ci sont rajoutés un à un dans le modèle. Par ailleurs, certaines variables gênes ne présentent que des observations nulles , ils sont automatiquement 'éliminés' de la description du modèle. Ce modèle ne possède alors qu'une seule ligne de coefficients, ceux de l'Intercept et ne renvoit donc pas de p-valeur pour le gêne en question. C'est pourquoi dans ce cas là, on leur ajoute une p-valeur à 1 , les écartant ainsi de notre modèle final.</p>
+  <pre class="r"><code>### DO NOT CHANGE THIS PART
 d &lt;- readRDS(&quot;data_learn.rds&quot;)
 for ( v in c(&quot;sex&quot;, &quot;tissue_status&quot;, &quot;histology&quot;, &quot;os_months&quot;, &quot;dead&quot;, &quot;dead_at_24_months&quot;, &quot;t&quot;, &quot;n&quot;, &quot;m&quot;, &quot;tnm_stage&quot;, &quot;tnm_grade&quot;) ) {
     d[[ v ]] &lt;- as.factor(x = d[[ v ]])
