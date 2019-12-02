@@ -128,11 +128,10 @@ $(document).ready(function () {
 <p>Please use the <code>submission_script_histology.Rmd</code> contained in the <code>starting_kit</code> folder as a template to write, run and save your code.</p>
 <div id="prediction-of-the-patient-histology" class="section level2">
 <h2>Prediction of the patient histology</h2>
-
-<p>On teste d'abord des régressions logistiques avec  chacun des gênes. Puis on choisit alors les 10 gênes qui ont les p-valeurs les plus faibles, pour les tester dans notre modèle. On applique ensuite la méthode du Backward sur nos 10 gênes à l'aide la fonction stepAIC du package MASS, et on élimine petit à petit les variables à l'AIC le plus élevé.</p>
-
-<p>la matrice "res" renvoit les p valeurs des gênes lorsque ceux-ci sont rajoutés un à un dans le modèle. Par ailleurs, certaines variables gênes ne présentent que des observations nulles , ils sont automatiquement 'éliminés' de la description du modèle. Ce modèle ne possède alors qu'une seule ligne de coefficients, ceux de l'Intercept et ne renvoit donc pas de p-valeur pour le gêne en question. C'est pourquoi dans ce cas là, on leur ajoute une p-valeur à 1 , les écartant ainsi de notre modèle final.</p>
-  <pre class="r"><code>### DO NOT CHANGE THIS PART
+<p>On décide ici de regarder essentiellement les gênes. On teste d’abord des régressions logistiques avec chacun des gênes. Puis on choisit alors les 10 gênes qui ont les p-valeurs les plus faibles pour les tester dans notre modèle. On applique ensuite la méthode du Backward sur nos 10 gênes à l’aide la fonction stepAIC du package MASS, et on élimine petit à petit les variables pour finalment obtenir un modèle qui correspond le mieux aux données.</p>
+<p>La matrice “res” renvoit les p valeurs des gênes lorsque ceux-ci sont rajoutés un à un dans le modèle. On a donc une p-valeur par gêne. Par ailleurs, certaines variables gênes ne présentent que des observations nulles, et n’admettent alors pas de p-valeur : Seule la ligne correspondant à l’Intercept est prise en compte dans la descrition du modèle (=summary). On souhaite donc ‘éliminer’ ces variables. C’est pourquoi dans ce cas là, on leur ajoute une p-valeur très élevée (ici égale à 1) , les écartant ainsi de notre modèle final.</p>
+<p>On applique ensuite la fonction predict.glm pour tester notre modèle de prédiction sur nos données test de notre jeu de données.</p>
+<pre class="r"><code>### DO NOT CHANGE THIS PART
 d &lt;- readRDS(&quot;data_learn.rds&quot;)
 for ( v in c(&quot;sex&quot;, &quot;tissue_status&quot;, &quot;histology&quot;, &quot;os_months&quot;, &quot;dead&quot;, &quot;dead_at_24_months&quot;, &quot;t&quot;, &quot;n&quot;, &quot;m&quot;, &quot;tnm_stage&quot;, &quot;tnm_grade&quot;) ) {
     d[[ v ]] &lt;- as.factor(x = d[[ v ]])
@@ -160,19 +159,17 @@ table(is.na(d[,gs]))   #il n'y a pas de NA dans les valeurs des variables corres
           data=d,
     family = binomial(logit))
   #b = m$coefficients[[2]]
-  if (nrow(summary(m)$coefficients)==1){pv=1}
-  else {pv = summary(m)$coefficients[2,4]}
-  c(pval = pv)#beta = b
+  if (nrow(summary(m)$coefficients)==1){pv=1} #on élimine ainsi les  gênes aux observations nulles 
+  else {pv = summary(m)$coefficients[2,4]} #on récupère les p-valeurs
+  c(pval = pv)
 })
 
 
-sort(res)[1:15]#pour avoir les 10 plus petites p valeurs</code></pre>
+sort(res)[1:10]#pour avoir les 10 plus petites p valeurs</code></pre>
 <pre><code>## LINC02428.pval      DLX6.pval     SPDEF.pval  SERPINB2.pval    KRT42P.pval 
 ##   1.617930e-40   1.321653e-37   8.499024e-37   3.690901e-36   4.607402e-36 
 ## LINC01503.pval       SMO.pval      MCM2.pval   TMEM189.pval     CDHR1.pval 
-##   2.326647e-35   3.138815e-35   1.681773e-34   2.037246e-34   2.048867e-34 
-##       FBL.pval      SNCA.pval  SERPINB5.pval     KPNA1.pval       JUP.pval 
-##   2.379011e-34   9.811424e-34   9.872233e-34   2.188581e-33   2.989017e-33</code></pre>
+##   2.326647e-35   3.138815e-35   1.681773e-34   2.037246e-34   2.048867e-34</code></pre>
 <pre class="r"><code>mod1&lt;-glm(histology~LINC02428+  DLX6+   SPDEF+  KRT42P+ LINC01503+  SMO+    MCM2+   CDHR1+ FBL+ SERPINB5+   KPNA1+  JUP
  , 
     data=d,
@@ -375,11 +372,11 @@ if ( !{ &quot;zip&quot; %in% installed.packages( ) } ) {
 zip::zip(zip_filename, &quot;results.rds&quot;)</code></pre>
 <pre><code>## Note: zip::zip() is deprecated, please use zip::zipr() instead</code></pre>
 <pre class="r"><code>print(zip_filename)</code></pre>
-<pre><code>## [1] &quot;results_2019_11_30_-_1575131116.zip&quot;</code></pre>
+<pre><code>## [1] &quot;results_2019_12_02_-_1575306759.zip&quot;</code></pre>
 </div>
 <div id="submit-zip-file" class="section level2">
 <h2>Submit zip file</h2>
-<p>It generates *results_2019_11_30_-_1575131116.zip* submission file.</p>
+<p>It generates *results_2019_12_02_-_1575306759.zip* submission file.</p>
 <p>Submit the zip submission file in the <code>Participate</code> tab of the codalab challenge by clicking the <code>Submit</code> button.</p>
 <p>The metric used to evaluate prediction is the true positive rate (TPR) coded with the provided <code>scoring_function()</code>.</p>
 <p>On the codalab challenge web page, The <em>STATUS</em> become :</p>
